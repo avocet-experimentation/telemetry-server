@@ -1,0 +1,26 @@
+{
+  "name": "tel-server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsx watch src/index.ts",
+    "build": "npx tsc"
+  },
+  "devDependencies": {
+    "typescript": "~5.6.2",
+    "vite": "^6.0.5"
+  },
+  "dependencies": {
+    "@avocet/core": "file:../packages/avocet-core",
+    "@typescript-eslint/parser": "^5.62.0",
+    "dotenv": "^16.4.7",
+    "envalid": "^8.0.0",
+    "eslint": "^8.57.1",
+    "fastify": "^5.2.1",
+    "graphql": "^16.10.0",
+    "mercurius": "^16.0.0",
+    "prettier": "^3.4.2",
+    "prettier-eslint": "^16.3.0"
+  }
+}
