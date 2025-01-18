@@ -12,7 +12,7 @@ export const transformedSpanGQLSchema = /* GraphQL */ `
     spanId: String!
     parentSpanId: String!
     name: String!
-    kind: Int!
+    kind: Float!
     startTimeUnixNano: String!
     endTimeUnixNano: String!
     attributes: TransformedSpanAttributes!
