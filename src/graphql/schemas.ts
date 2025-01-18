@@ -1,5 +1,7 @@
-export const transformedSpanGQLSchema = /* GraphQL */ `
+const transformedSpanGQLSchema = /* GraphQL */ `
   scalar TransformedSpanAttributes
+
+  scalar ExperimentData
 
   enum PrimitiveTypeLabel {
     STRING
@@ -7,7 +9,7 @@ export const transformedSpanGQLSchema = /* GraphQL */ `
     BOOLEAN
   }
 
-  interface TransformedSpan {
+  type TransformedSpan {
     traceId: String!
     spanId: String!
     parentSpanId: String!
@@ -17,4 +19,18 @@ export const transformedSpanGQLSchema = /* GraphQL */ `
     endTimeUnixNano: String!
     attributes: TransformedSpanAttributes!
   }
+
+`;
+
+
+const querySchema = /* GraphQL */ `
+  type Query {
+    allSpans(limit: Int, offset: Int): [TransformedSpan!]!
+    findSpansByValue(value: String!): [TransformedSpan!]!
+    experimentData(metadata: [String!]!, flagNames: [String!]!, dependentVariables: [String!]!): [ExperimentData!]!
+  }
+`;
+export const schemas = /* GraphQL */ `
+  ${transformedSpanGQLSchema},
+  ${querySchema},
 `;

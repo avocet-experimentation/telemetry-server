@@ -1,28 +1,19 @@
-import fastify from "fastify";
+import Fastify from "fastify";
 import mercurius from "mercurius";
+import mercuriusLogging from "mercurius-logging";
+import { resolvers } from "./graphql/resolvers";
+import { schemas } from "./graphql/schemas";
 
-const app = fastify();
-
-const schema = `
-  type Query {
-    add(x: Int, y: Int): Int
-  }
-`;
-
-const resolvers = {
-  Query: {
-    add: async (_, { x, y }) => x + y,
-  },
-};
+const app = Fastify({
+  logger: true,
+  disableRequestLogging: true,
+});
 
 app.register(mercurius, {
-  schema,
+  schema: schemas,
   resolvers,
+  graphiql: true,
 });
 
-app.get("/", async function (req, reply) {
-  const query = "{ add(x: 2, y: 2) }";
-  return reply.graphql(query);
-});
-
+app.register(mercuriusLogging);
 app.listen({ port: 3000 });
