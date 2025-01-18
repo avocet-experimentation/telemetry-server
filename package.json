@@ -14,6 +14,7 @@
   "dependencies": {
     "@avocet/core": "file:../packages/avocet-core",
     "@typescript-eslint/parser": "^5.62.0",
+    "cassandra-driver": "^4.7.2",
     "dotenv": "^16.4.7",
     "envalid": "^8.0.0",
     "eslint": "^8.57.1",
