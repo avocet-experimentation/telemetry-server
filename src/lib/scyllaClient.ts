@@ -56,16 +56,27 @@ export const mapper = new cassandra.mapping.Mapper(client, {
 
 const baseSpanMapper = mapper.forModel('Span');
 
-const getByType = () => {
+const getByType = (() => {
   const selectByTypeQuery = `SELECT * FROM spans ` + 
                           `WHERE attributes CONTAINS KEY ? ` + 
                           `ALLOW FILTERING`;
 
 
  return baseSpanMapper.mapWithQuery(selectByTypeQuery, (paramObj) => [paramObj.type])
-};
+})();
 
 addProp(baseSpanMapper, 'getByType', getByType);
+
+const getByValue = (() => {
+  const selectByValueQuery = `SELECT * FROM spans ` + 
+                          `WHERE attributes CONTAINS ? ` + 
+                          `ALLOW FILTERING`;
+
+
+ return baseSpanMapper.mapWithQuery(selectByValueQuery, (paramObj) => [paramObj.value])
+})();
+
+addProp(baseSpanMapper, 'getByValue', getByValue);
 
 const spanMapper = baseSpanMapper;
 export { spanMapper };
