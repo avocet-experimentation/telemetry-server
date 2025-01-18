@@ -16,6 +16,10 @@ const valueTypeMapping = {
 
 type SpanAttributeMapping = Record<string, { type: string, value: string }>;
 
+/* 
+  - Takes snake case property fields of all spans and turns them into camel case when being fetched.
+  - Takes attribute property and outputs array of objects 
+*/
 export const mapper = new cassandra.mapping.Mapper(client, {
   models: {
     'Span': {
@@ -28,7 +32,7 @@ export const mapper = new cassandra.mapping.Mapper(client, {
         },
         attributes: {
           name: 'attributes',
-          // toModel: (data) => data,
+          // toModel: (data) => data, 
           fromModel: (spanAttributes: SpanAttribute[]) => {
             
             const mapping = spanAttributes.reduce((acc: SpanAttributeMapping, attr) => {
@@ -36,8 +40,8 @@ export const mapper = new cassandra.mapping.Mapper(client, {
               const valueKey = Object.keys(value)[0];
 
               return { ...acc, ...{ [key]: {
-                  type: valueTypeMapping[valueKey],
-                  value: value[valueKey],
+                  type: valueTypeMapping[valueKey], // number, string, list
+                  value: value[valueKey], // value stored within "value" key
                 } } };
             }, {});
           
@@ -52,14 +56,14 @@ export const mapper = new cassandra.mapping.Mapper(client, {
 
 const baseSpanMapper = mapper.forModel('Span');
 
-const getByType = (() => {
+const getByType = () => {
   const selectByTypeQuery = `SELECT * FROM spans ` + 
                           `WHERE attributes CONTAINS KEY ? ` + 
                           `ALLOW FILTERING`;
 
 
  return baseSpanMapper.mapWithQuery(selectByTypeQuery, (paramObj) => [paramObj.type])
-})();
+};
 
 addProp(baseSpanMapper, 'getByType', getByType);
 
