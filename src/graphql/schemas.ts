@@ -27,7 +27,7 @@ const querySchema = /* GraphQL */ `
   type Query {
     allSpans(limit: Int, offset: Int): [TransformedSpan!]!
     findSpansByValue(value: String!): [TransformedSpan!]!
-    experimentData(metadata: [String!]!, flagNames: [String!]!, dependentVariables: [String!]!): [ExperimentData!]!
+    experimentData(experimentId: String!, conditionRefs: [String!]!, dependentVariables: [String!]!): ExperimentData!
   }
 `;
 export const schemas = /* GraphQL */ `

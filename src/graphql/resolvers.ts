@@ -1,4 +1,4 @@
-import { TextPrimitive, transformedSpanSchema } from "@avocet/core";
+import { ConditionReferenceString, TextPrimitive, TransformedSpan, transformedSpanSchema } from "@avocet/core";
 import { IResolvers } from "mercurius";
 import { GraphQLScalarType } from "graphql";
 import { spanMapper } from "../lib/scyllaClient";
@@ -18,6 +18,24 @@ const scalarResolvers: IResolvers = {
       return value; // TODO: add schema parse
     }
   })
+};
+
+const getDependentData = (dependentVariables: string[], spans: TransformedSpan[]) => {
+  const dataObj = dependentVariables.reduce(
+    (acc: Record<string, TextPrimitive[]>, el) => Object
+      .assign(acc, { [el]: []}),
+    {},
+  );
+
+  spans.forEach((span) => {
+    dependentVariables.forEach((dep) => {
+      if (dep in span.attributes) {
+        dataObj[dep].push(span.attributes[dep].value);
+      }
+    })
+  });
+
+  return dataObj;
 };
 
 const queryResolvers: IResolvers = {
@@ -40,31 +58,23 @@ const queryResolvers: IResolvers = {
       dependentVariables: string[],
     }) => {
       const promises = conditionRefs.map(async (ref) => {
-        const result = await spanMapper.getByValue({
+        const fetchResult = await spanMapper.getByValue({
           value: { type: 'string', value: `${experimentId}+${ref}` },
         });
-        const spans = transformedSpanSchema.array().parse(result.toArray());
-        return [ref, spans] as const;
+
+        const spans = fetchResult.toArray() as TransformedSpan[];
+        const conditionData = getDependentData(dependentVariables, spans);
+        console.log(conditionData); // TODO: remove
+        return [ref, conditionData];
       });
-
-      const conditionSpans = await Promise.all(promises);
-
-      const experimentDataEntries = conditionSpans.map(([ref, spans]) => {
-        const dependents = dependentVariables.reduce(
-          (acc: Record<string, TextPrimitive[]>, el) => Object
-            .assign(acc, { [el]: []}), {});
-        
-        spans.forEach((span) => {
-          dependentVariables.forEach((dep) => {
-            const data = span.attributes[dep];
-            dependents[dep].push(data?.value ?? null);
-          });
-        });
-
-        return [ref, dependents];
-      });
-
-      return Object.fromEntries(experimentDataEntries);
+      try {
+        const resolve = await Promise.all(promises);
+        const data: Record<ConditionReferenceString, Record<string, TextPrimitive[]>> = Object.fromEntries(resolve);
+        return data;
+      } catch (e) {
+        console.error(e);
+        return {};
+      }
     },
   }
 }
