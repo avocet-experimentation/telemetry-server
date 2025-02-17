@@ -9,11 +9,11 @@ const app = Fastify({
   disableRequestLogging: true,
 });
 
-app.register(mercurius, {
+await app.register(mercurius, {
   schema: schemas,
   resolvers,
   graphiql: true,
 });
 
-app.register(mercuriusLogging);
+await app.register(mercuriusLogging);
 app.listen({ port: 3000 });
