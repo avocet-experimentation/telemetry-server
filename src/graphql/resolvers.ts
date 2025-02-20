@@ -42,7 +42,7 @@ const queryResolvers: IResolvers = {
   Query: {
     allSpans: async (_, { limit, offset }: {limit?: number, offset?: number}) => {
       const allSpans = await spanMapper.findAll();
-      return transformedSpanSchema.array().parse(allSpans);
+      return allSpans.toArray();
     },
     findSpansByValue: async (_, {value}: {value: string}) => {
       const spans = await spanMapper.getByValue({ value: { type: 'string', value } });
